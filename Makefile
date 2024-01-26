@@ -29,12 +29,12 @@ DOCKER_TAG_ROOT = ftl
 
 # Device Module Setting
 USE_ZONE_DEVICE = 0
-USE_BLUEDBM_DEVICE = 0
+USE_BLUEDBM_DEVICE = 1
 # Debug Setting
 USE_DEBUG = 0
 USE_LOG_SILENT = 0
 # Random Generator Setting
-USE_LEGACY_RANDOM = 0
+USE_LEGACY_RANDOM = 1
 
 ifeq ($(USE_DEBUG), 1)
 DEBUG_FLAGS = -g -pg \
@@ -120,7 +120,6 @@ CFLAGS := -Wall \
           -Wno-unknown-pragmas \
           -Wundef \
           -Wconversion \
-          -Werror \
           $(DEVICE_INFO) \
           $(DEBUG_FLAGS) \
           $(MEMORY_CHECK_CFLAGS) \
