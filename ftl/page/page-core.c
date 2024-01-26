@@ -35,6 +35,7 @@ static void *page_ftl_gc_thread(void *data)
 {
 	struct page_ftl *pgftl;
 	size_t total_pages;
+	//size_t total_segments;
 	ssize_t ret;
 	struct device_request request;
 	struct timespec req;
@@ -49,20 +50,24 @@ static void *page_ftl_gc_thread(void *data)
 	memset(&request, 0, sizeof(struct device_request));
 	request.flag = DEVICE_ERASE;
 
-	total_pages = device_get_total_pages(pgftl->dev);
+	total_segments = device_get_nr_segments(pgftl->dev);
+	//total_pages = device_get_total_pages(pgftl->dev);
 	ret = 0;
 	while (1) {
-		size_t free_pages;
+		size_t free_segments;
+		//size_t free_pages;
 		g_assert(nanosleep(&req, NULL) == 0);
 		if (g_atomic_int_get(&is_gc_thread_exit) == 1) {
 			break;
 		}
-		free_pages = page_ftl_get_free_pages(pgftl);
-		if ((double)free_pages >
-		    (double)total_pages * PAGE_FTL_GC_THRESHOLD) {
+		free_segments = page_ftl_get_free_segments(pgftl); 
+		//free_pages = page_ftl_get_free_pages(pgftl);
+		if ((double)free_segments >
+		    (double)total_segments * PAGE_FTL_GC_THRESHOLD) {
 			continue;
 		}
-		ret = page_ftl_gc_from_list(pgftl, &request, PAGE_FTL_GC_RATIO);
+		ret = page_ftl_gc_from_list(pgftl, &request, (double) (1 / total_segments));
+		//ret = page_ftl_gc_from_list(pgftl, &request, PAGE_FTL_GC_RATIO);
 		if (ret < 0) {
 			pr_err("critical garbage collection error detected (errno: %zd)\n",
 			       ret);

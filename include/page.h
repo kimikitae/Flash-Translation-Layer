@@ -116,6 +116,27 @@ static inline size_t page_ftl_get_segment_number(struct page_ftl *pgftl,
 	       sizeof(struct page_ftl_segment);
 }
 
+static inline size_t page_ftl_get_free_segments(struct page_ftl *pgftl)
+{
+	size_t free_segments;
+	size_t nr_segments, segnum;
+	struct page_ftl_segment *segment;
+
+	nr_segments = device_get_nr_segments(pgftl->dev);
+	nr_pages_per_segments = device_get_pages_per_segment(pgftl->dev);
+
+	free_segments = 0;
+	for (segnum = 0; segnum < nr_segments; segnum++) {
+		segment = &pgftl->segments[segnum];
+		if(segment->nr_free_pages == nr_pages_per_segments)	{
+			free_segments++;
+		}
+		//assert(NULL != segment);
+		//free_pages += (size_t)g_atomic_int_get(&segment->nr_free_pages);
+	}
+	return free_segments;
+}
+
 static inline size_t page_ftl_get_free_pages(struct page_ftl *pgftl)
 {
 	size_t free_pages;
