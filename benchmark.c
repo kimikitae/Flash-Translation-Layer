@@ -29,7 +29,7 @@
 #endif
 
 #define DO_WARM_UP (1) /**< Do not erase */
-
+//dsa
 #define USE_CRC
 #define USE_PER_CORE
 #define CRC32_INIT (0xffffffff)
