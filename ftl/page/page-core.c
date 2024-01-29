@@ -34,8 +34,8 @@ static int is_gc_thread_exit;
 static void *page_ftl_gc_thread(void *data)
 {
 	struct page_ftl *pgftl;
-	size_t total_pages;
-	//size_t total_segments;
+	size_t total_segments;
+	//size_t total_pages;
 	ssize_t ret;
 	struct device_request request;
 	struct timespec req;

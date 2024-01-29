@@ -27,7 +27,7 @@
 	 100) /**< maximum the number of segments garbage collected */
 #define PAGE_FTL_GC_ALL ((double)1) /**< collect all dirty segments */
 #define PAGE_FTL_GC_THRESHOLD                                                  \
-	((double)20 /                                                          \
+	((double)99 /                                                          \
 	 100) /**< gc triggered when number of the free pages under threshold */
 
 enum {
@@ -120,10 +120,11 @@ static inline size_t page_ftl_get_free_segments(struct page_ftl *pgftl)
 {
 	size_t free_segments;
 	size_t nr_segments, segnum;
+	gint nr_pages_per_segments;
 	struct page_ftl_segment *segment;
 
 	nr_segments = device_get_nr_segments(pgftl->dev);
-	nr_pages_per_segments = device_get_pages_per_segment(pgftl->dev);
+	nr_pages_per_segments = (gint)device_get_pages_per_segment(pgftl->dev);
 
 	free_segments = 0;
 	for (segnum = 0; segnum < nr_segments; segnum++) {
