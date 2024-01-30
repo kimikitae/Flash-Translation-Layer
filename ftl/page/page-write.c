@@ -221,6 +221,7 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 	request->data_len = page_size;
 	request->end_rq = page_ftl_write_end_rq;
 
+	printf("bus: %u\tchip: %u\tblock: %u\tpage: %u\n", paddr.format.bus, paddr.format.chip, paddr.format.block, paddr.format.page);
 	ret = dev->d_op->write(dev, request);
 	if (ret != (ssize_t)device_get_page_size(dev)) {
 		pr_err("device write failed (ppn: %u)\n", request->paddr.lpn);

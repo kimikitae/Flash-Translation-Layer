@@ -51,6 +51,9 @@ static void *page_ftl_gc_thread(void *data)
 	request.flag = DEVICE_ERASE;
 
 	total_segments = device_get_nr_segments(pgftl->dev);
+	size_t bps = device_get_blocks_per_segment(pgftl->dev);
+	size_t pps = device_get_pages_per_segment(pgftl->dev);
+	printf("total_segments:%zu blocks_per_segment:%zu pages_per_segment:%zu \n", total_segments, bps, pps);
 	//total_pages = device_get_total_pages(pgftl->dev);
 	ret = 0;
 	while (1) {
@@ -66,7 +69,7 @@ static void *page_ftl_gc_thread(void *data)
 		    (double)total_segments * PAGE_FTL_GC_THRESHOLD) {
 			continue;
 		}
-		ret = page_ftl_gc_from_list(pgftl, &request, (double) (1 / total_segments));
+		ret = page_ftl_gc_from_list(pgftl, &request, (double)1 / (double)total_segments);
 		//ret = page_ftl_gc_from_list(pgftl, &request, PAGE_FTL_GC_RATIO);
 		if (ret < 0) {
 			pr_err("critical garbage collection error detected (errno: %zd)\n",
@@ -74,7 +77,7 @@ static void *page_ftl_gc_thread(void *data)
 			break;
 		}
 #ifdef USE_GC_MESSAGE
-		pr_info("gc triggered (nr_erase: %zd)\n", ret);
+		//pr_info("gc triggered (nr_erase: %zd)\n", ret);
 #endif
 	}
 	return NULL;

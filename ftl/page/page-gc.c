@@ -265,6 +265,7 @@ ssize_t page_ftl_do_gc(struct page_ftl *pgftl)
 		return 0;
 	}
 	segnum = page_ftl_get_segment_number(pgftl, (uintptr_t)segment);
+	printf("\nvictim segnum: %zu\n", segnum);
 	pr_debug("current segnum: %zu\n", segnum);
 
 	ret = page_ftl_valid_page_copy(pgftl, segment);
@@ -275,6 +276,7 @@ ssize_t page_ftl_do_gc(struct page_ftl *pgftl)
 
 	paddr.lpn = 0;
 	paddr.format.block = (uint16_t)segnum;
+	//printf("bus: %zu\nchip: %zu\nblock: %zu\n", paddr.format.bus, paddr.format.chip, paddr.format.block);
 	ret = page_ftl_segment_erase(pgftl, paddr);
 	if (ret) {
 		pr_err("do erase failed\n");

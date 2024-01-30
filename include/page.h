@@ -132,9 +132,8 @@ static inline size_t page_ftl_get_free_segments(struct page_ftl *pgftl)
 		if(segment->nr_free_pages == nr_pages_per_segments)	{
 			free_segments++;
 		}
-		//assert(NULL != segment);
-		//free_pages += (size_t)g_atomic_int_get(&segment->nr_free_pages);
 	}
+	printf("free_segments:%zu \n", free_segments);
 	return free_segments;
 }
 
