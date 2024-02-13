@@ -50,7 +50,7 @@ static void page_ftl_invalidate(struct page_ftl *pgftl, size_t lpn)
 	/**< global information update */
 	pgftl->trans_map[lpn] = PADDR_EMPTY;
 	if (nr_free_pages == 0 && get_bit(pgftl->gc_seg_bits, segnum) != 1) {
-		pgftl->gc_list = g_list_prepend(pgftl->gc_list, segment);
+		pgftl->gc_list = g_list_append(pgftl->gc_list, segment);
 		set_bit(pgftl->gc_seg_bits, segnum);
 	}
 }
@@ -221,7 +221,7 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 	request->data_len = page_size;
 	request->end_rq = page_ftl_write_end_rq;
 
-	printf("bus: %u\tchip: %u\tblock: %u\tpage: %u\n", paddr.format.bus, paddr.format.chip, paddr.format.block, paddr.format.page);
+	//printf("bus: %u\tchip: %u\tblock: %u\tpage: %u\n", paddr.format.bus, paddr.format.chip, paddr.format.block, paddr.format.page);
 	ret = dev->d_op->write(dev, request);
 	if (ret != (ssize_t)device_get_page_size(dev)) {
 		pr_err("device write failed (ppn: %u)\n", request->paddr.lpn);
