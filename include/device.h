@@ -17,6 +17,8 @@
 
 #define PADDR_EMPTY ((uint32_t)UINT32_MAX)
 
+extern int user_flag;
+extern int gc_flag;
 struct device_request;
 struct device_operations;
 
@@ -250,7 +252,7 @@ static inline size_t device_get_total_size(struct device *dev)
 	size_t nr_segments = device_get_nr_segments(dev);
 	size_t nr_pages_per_segment = device_get_pages_per_segment(dev);
 	size_t page_size = device_get_page_size(dev);
-
+	
 	return nr_segments * nr_pages_per_segment * page_size;
 }
 

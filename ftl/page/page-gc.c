@@ -15,6 +15,8 @@
 #include "log.h"
 #include "bits.h"
 
+int gc_flag;
+
 /**
  * @brief page ftl gc list compare function
  *
@@ -46,14 +48,6 @@ static void page_ftl_erase_end_rq(struct device_request *request)
 	device_free_request(request);
 }
 
-/*
-void print_func(gpointer segment){
-	printf("gc target: %zu (valid: %d) => %p\n",
-			page_ftl_get_segment_number(pgftl, (uintptr_t)segment),
-			g_atomic_int_get(&segment->nr_valid_pages), segment);
-}
-*/
-
 /**
  * @brief the function which chooses the appropriate garbage collection target.
  *
@@ -69,8 +63,7 @@ static struct page_ftl_segment *page_ftl_pick_gc_target(struct page_ftl *pgftl)
 	}
 	pgftl->gc_list = g_list_sort(pgftl->gc_list, page_ftl_gc_list_cmp);
 	segment = (struct page_ftl_segment *)pgftl->gc_list->data;
-	//g_list_foreach(pgftl->gc_list, (GFunc)print_func, (gpointer)segment);
-	GList *elem;
+	/*GList *elem;
 	struct page_ftl_segment *item;
 
 	for(elem = pgftl->gc_list; elem; elem = elem->next) {
@@ -78,7 +71,7 @@ static struct page_ftl_segment *page_ftl_pick_gc_target(struct page_ftl *pgftl)
 		  printf("gc target: %zu (valid: %d) => %p\n",
 				page_ftl_get_segment_number(pgftl, (uintptr_t)item),
 				g_atomic_int_get(&item->nr_valid_pages), item);
-	}
+	}*/
 	
 	pr_debug("gc target: %zu (valid: %d) => %p\n",
 		 page_ftl_get_segment_number(pgftl, (uintptr_t)segment),
@@ -214,6 +207,8 @@ static ssize_t page_ftl_write_valid_page(struct page_ftl *pgftl, size_t lpn,
 	request->sector = lpn * page_size;
 	request->data = buffer;
 
+	gc_flag = 1;
+	printf("W\tLPN: %x \t\t", lpn);
 	ret = page_ftl_write(pgftl, request);
 	if (ret != (ssize_t)page_size) {
 		pr_err("invalid write size detected (expected: %zd, acutal: %zd)\n",
@@ -284,7 +279,7 @@ ssize_t page_ftl_do_gc(struct page_ftl *pgftl)
 		return 0;
 	}
 	segnum = page_ftl_get_segment_number(pgftl, (uintptr_t)segment);
-	printf("\nvictim segnum: %zu\n", segnum);
+	printf("G\tVictim segment number: %zu\t\t Valid page number: %d\n", segnum, g_atomic_int_get(&segment->nr_valid_pages));
 	pr_debug("current segnum: %zu\n", segnum);
 
 	ret = page_ftl_valid_page_copy(pgftl, segment);

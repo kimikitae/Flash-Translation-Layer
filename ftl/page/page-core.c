@@ -23,7 +23,7 @@
 #include <time.h>
 
 static int is_gc_thread_exit;
-
+int user_flag;
 /**
  * @brief do garbage collection thread
  *
@@ -35,7 +35,7 @@ static void *page_ftl_gc_thread(void *data)
 {
 	struct page_ftl *pgftl;
 	size_t total_segments;
-	//size_t total_pages;
+	size_t total_pages;
 	ssize_t ret;
 	struct device_request request;
 	struct timespec req;
@@ -54,21 +54,26 @@ static void *page_ftl_gc_thread(void *data)
 	size_t bps = device_get_blocks_per_segment(pgftl->dev);
 	size_t pps = device_get_pages_per_segment(pgftl->dev);
 	printf("total_segments:%zu blocks_per_segment:%zu pages_per_segment:%zu \n", total_segments, bps, pps);
-	//total_pages = device_get_total_pages(pgftl->dev);
+	total_pages = device_get_total_pages(pgftl->dev);
 	ret = 0;
 	while (1) {
-		size_t free_segments;
-		//size_t free_pages;
+		//size_t free_segments;
+		size_t free_pages;
 		g_assert(nanosleep(&req, NULL) == 0);
 		if (g_atomic_int_get(&is_gc_thread_exit) == 1) {
 			break;
 		}
-		free_segments = page_ftl_get_free_segments(pgftl); 
-		//free_pages = page_ftl_get_free_pages(pgftl);
-		if ((double)free_segments >
+		//free_segments = page_ftl_get_free_segments(pgftl); 
+		free_pages = page_ftl_get_free_pages(pgftl);
+		/*if ((double)free_segments >
 		    (double)total_segments * PAGE_FTL_GC_THRESHOLD) {
 			continue;
+		}*/
+		if((double)free_pages >
+				(double)total_pages * PAGE_FTL_GC_THRESHOLD){
+			continue;
 		}
+
 		ret = page_ftl_gc_from_list(pgftl, &request, (double)1 / (double)total_segments);
 		//ret = page_ftl_gc_from_list(pgftl, &request, PAGE_FTL_GC_RATIO);
 		if (ret < 0) {
@@ -351,6 +356,13 @@ ssize_t page_ftl_submit_request(struct page_ftl *pgftl,
 		pthread_rwlock_wrlock(&pgftl->rwlock);
 #endif
 		pthread_mutex_unlock(&pgftl->gc_mutex);
+		
+		size_t sector, lpn;
+		sector = request->sector;
+		lpn = page_ftl_get_lpn(pgftl, sector);
+		user_flag = 1;
+		printf("W\tLPN: %016x \t\t", lpn);
+		
 		ret = page_ftl_write(pgftl, request);
 #ifdef PAGE_FTL_USE_GLOBAL_RWLOCK
 		pthread_rwlock_unlock(&pgftl->rwlock);

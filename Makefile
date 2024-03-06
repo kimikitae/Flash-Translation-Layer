@@ -29,7 +29,7 @@ DOCKER_TAG_ROOT = ftl
 
 # Device Module Setting
 USE_ZONE_DEVICE = 0
-USE_BLUEDBM_DEVICE = 1
+USE_BLUEDBM_DEVICE = 0
 # Debug Setting
 USE_DEBUG = 0
 USE_LOG_SILENT = 0

@@ -184,11 +184,11 @@ int main(int argc, char **argv)
 			wp = parm->wp[idx];
 			total_time = parm->total_time[idx];
 		}
-		printf("\rProcessing: %.2lf%% [%.2lf MiB/s]",
+		/*printf("\rProcessing: %.2lf%% [%.2lf MiB/s]",
 		       ((double)wp / (double)(parm->nr_blocks - 1)) * 100.0,
 		       ((double)wp * (double)parm->block_sz) /
 			       (((double)total_time / (NS_PER_MS * 1000L)) *
-				(0x1 << 20)));
+				(0x1 << 20)));*/
 		sleep(1);
 	} while (wp < parm->nr_blocks - 1);
 	printf("\n");

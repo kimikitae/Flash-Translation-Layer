@@ -20,6 +20,8 @@
 
 #include <glib.h>
 
+int uesr_flag;
+
 /**
  * @brief invalidate a segment that including to the given LPN
  *
@@ -131,7 +133,7 @@ static void page_ftl_write_update_metadata(struct page_ftl *pgftl,
 	/**< segment information update */
 	segment = &pgftl->segments[paddr.format.block];
 	segment->lpn_list =
-		g_list_prepend(segment->lpn_list, GSIZE_TO_POINTER(lpn));
+		g_list_append(segment->lpn_list, GSIZE_TO_POINTER(lpn));
 
 	/**< global information update */
 	page_ftl_update_map(pgftl, sector, paddr.lpn);
@@ -175,6 +177,7 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 	lpn = page_ftl_get_lpn(pgftl, sector);
 	offset = page_ftl_get_page_offset(pgftl, sector);
 
+	//printf("lpn: %zu ", lpn);
 	nr_entries = page_ftl_get_map_size(pgftl) / sizeof(uint32_t);
 	if (lpn > nr_entries) {
 		pr_err("invalid lpn detected (lpn: %zu, max: %zu)\n", lpn,
@@ -221,7 +224,13 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 	request->data_len = page_size;
 	request->end_rq = page_ftl_write_end_rq;
 
-	//printf("bus: %u\tchip: %u\tblock: %u\tpage: %u\n", paddr.format.bus, paddr.format.chip, paddr.format.block, paddr.format.page);
+	if(user_flag){
+		user_flag = 0;
+		printf("PPN: %016x\t(segnum: %zu)\n", paddr.lpn, paddr.format.block);
+	}else if(gc_flag){
+		gc_flag = 0;
+		printf("PPN: %016x\t(segnum: %zu)\tgc\n", paddr.lpn, paddr.format.block);
+	}
 	ret = dev->d_op->write(dev, request);
 	if (ret != (ssize_t)device_get_page_size(dev)) {
 		pr_err("device write failed (ppn: %u)\n", request->paddr.lpn);
