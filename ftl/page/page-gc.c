@@ -208,7 +208,7 @@ static ssize_t page_ftl_write_valid_page(struct page_ftl *pgftl, size_t lpn,
 	request->data = buffer;
 
 	gc_flag = 1;
-	printf("W\tLPN: %x \t\t", lpn);
+	printf("W\tLPN: %016x \t\t", lpn);
 	ret = page_ftl_write(pgftl, request);
 	if (ret != (ssize_t)page_size) {
 		pr_err("invalid write size detected (expected: %zd, acutal: %zd)\n",

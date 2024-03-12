@@ -55,11 +55,11 @@ enum { RAMDISK_MODULE = 0 /**< select the ramdisk module */,
  * size.
  */
 #ifndef DEVICE_NR_BUS_BITS
-#define DEVICE_NR_BUS_BITS (3)
+#define DEVICE_NR_BUS_BITS (4)
 #endif
 
 #ifndef DEVICE_NR_CHIPS_BITS
-#define DEVICE_NR_CHIPS_BITS (3)
+#define DEVICE_NR_CHIPS_BITS (4)
 #endif
 
 #ifndef DEVICE_NR_PAGES_BITS
@@ -67,7 +67,7 @@ enum { RAMDISK_MODULE = 0 /**< select the ramdisk module */,
 #endif
 
 #ifndef DEVICE_NR_BLOCKS_BITS
-#define DEVICE_NR_BLOCKS_BITS (19)
+#define DEVICE_NR_BLOCKS_BITS (17)
 #endif
 
 #if 0
