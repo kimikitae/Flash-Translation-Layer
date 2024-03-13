@@ -15,8 +15,6 @@
 #include "log.h"
 #include "bits.h"
 
-int gc_flag;
-
 /**
  * @brief page ftl gc list compare function
  *
@@ -63,16 +61,6 @@ static struct page_ftl_segment *page_ftl_pick_gc_target(struct page_ftl *pgftl)
 	}
 	pgftl->gc_list = g_list_sort(pgftl->gc_list, page_ftl_gc_list_cmp);
 	segment = (struct page_ftl_segment *)pgftl->gc_list->data;
-	/*GList *elem;
-	struct page_ftl_segment *item;
-
-	for(elem = pgftl->gc_list; elem; elem = elem->next) {
-		  item = (struct page_ftl_segment *)elem->data;
-		  printf("gc target: %zu (valid: %d) => %p\n",
-				page_ftl_get_segment_number(pgftl, (uintptr_t)item),
-				g_atomic_int_get(&item->nr_valid_pages), item);
-	}*/
-	
 	pr_debug("gc target: %zu (valid: %d) => %p\n",
 		 page_ftl_get_segment_number(pgftl, (uintptr_t)segment),
 		 g_atomic_int_get(&segment->nr_valid_pages), segment);
@@ -207,8 +195,6 @@ static ssize_t page_ftl_write_valid_page(struct page_ftl *pgftl, size_t lpn,
 	request->sector = lpn * page_size;
 	request->data = buffer;
 
-	gc_flag = 1;
-	printf("W\tLPN: %016x \t\t", lpn);
 	ret = page_ftl_write(pgftl, request);
 	if (ret != (ssize_t)page_size) {
 		pr_err("invalid write size detected (expected: %zd, acutal: %zd)\n",
@@ -290,7 +276,6 @@ ssize_t page_ftl_do_gc(struct page_ftl *pgftl)
 
 	paddr.lpn = 0;
 	paddr.format.block = (uint16_t)segnum;
-	//printf("bus: %zu\nchip: %zu\nblock: %zu\n", paddr.format.bus, paddr.format.chip, paddr.format.block);
 	ret = page_ftl_segment_erase(pgftl, paddr);
 	if (ret) {
 		pr_err("do erase failed\n");

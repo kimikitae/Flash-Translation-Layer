@@ -57,32 +57,25 @@ static void *page_ftl_gc_thread(void *data)
 	total_pages = device_get_total_pages(pgftl->dev);
 	ret = 0;
 	while (1) {
-		//size_t free_segments;
 		size_t free_pages;
 		g_assert(nanosleep(&req, NULL) == 0);
 		if (g_atomic_int_get(&is_gc_thread_exit) == 1) {
 			break;
 		}
-		//free_segments = page_ftl_get_free_segments(pgftl); 
 		free_pages = page_ftl_get_free_pages(pgftl);
-		/*if ((double)free_segments >
-		    (double)total_segments * PAGE_FTL_GC_THRESHOLD) {
-			continue;
-		}*/
 		if((double)free_pages >
 				(double)total_pages * PAGE_FTL_GC_THRESHOLD){
 			continue;
 		}
 
 		ret = page_ftl_gc_from_list(pgftl, &request, (double)1 / (double)total_segments);
-		//ret = page_ftl_gc_from_list(pgftl, &request, PAGE_FTL_GC_RATIO);
 		if (ret < 0) {
 			pr_err("critical garbage collection error detected (errno: %zd)\n",
 			       ret);
 			break;
 		}
 #ifdef USE_GC_MESSAGE
-		//pr_info("gc triggered (nr_erase: %zd)\n", ret);
+		pr_info("gc triggered (nr_erase: %zd)\n", ret);
 #endif
 	}
 	return NULL;

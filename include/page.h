@@ -133,7 +133,6 @@ static inline size_t page_ftl_get_free_segments(struct page_ftl *pgftl)
 			free_segments++;
 		}
 	}
-	//printf("free_segments:%zu \n", free_segments);
 	return free_segments;
 }
 

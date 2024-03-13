@@ -177,7 +177,6 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 	lpn = page_ftl_get_lpn(pgftl, sector);
 	offset = page_ftl_get_page_offset(pgftl, sector);
 
-	//printf("lpn: %zu ", lpn);
 	nr_entries = page_ftl_get_map_size(pgftl) / sizeof(uint32_t);
 	if (lpn > nr_entries) {
 		pr_err("invalid lpn detected (lpn: %zu, max: %zu)\n", lpn,
@@ -224,12 +223,10 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 	request->data_len = page_size;
 	request->end_rq = page_ftl_write_end_rq;
 
+	// check whether user write(benchmark.c) or gc write
 	if(user_flag){
 		user_flag = 0;
 		printf("PPN: %016x\t(segnum: %zu)\n", paddr.lpn, paddr.format.block);
-	}else if(gc_flag){
-		gc_flag = 0;
-		printf("PPN: %016x\t(segnum: %zu)\tgc\n", paddr.lpn, paddr.format.block);
 	}
 	ret = dev->d_op->write(dev, request);
 	if (ret != (ssize_t)device_get_page_size(dev)) {

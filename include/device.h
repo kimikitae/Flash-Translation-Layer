@@ -18,7 +18,6 @@
 #define PADDR_EMPTY ((uint32_t)UINT32_MAX)
 
 extern int user_flag;
-extern int gc_flag;
 struct device_request;
 struct device_operations;
 
