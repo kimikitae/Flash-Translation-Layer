@@ -265,7 +265,9 @@ ssize_t page_ftl_do_gc(struct page_ftl *pgftl)
 		return 0;
 	}
 	segnum = page_ftl_get_segment_number(pgftl, (uintptr_t)segment);
+	/*
 	printf("G\tVictim segment number: %zu\t\t Valid page number: %d\n", segnum, g_atomic_int_get(&segment->nr_valid_pages));
+	 */
 	pr_debug("current segnum: %zu\n", segnum);
 
 	ret = page_ftl_valid_page_copy(pgftl, segment);

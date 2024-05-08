@@ -72,6 +72,7 @@ static int bluedbm_clear(struct device *dev)
 		pr_err("mio must be specified.\n");
 		return -EINVAL;
 	}
+	bdbm->mio->rr->req_type = REQTYPE_TRIM;
 	pages_per_segment = device_get_pages_per_segment(dev);
 	erase_size = pages_per_segment * page->size;
 	for (segnum = 0; segnum < package->nr_blocks; segnum++) {

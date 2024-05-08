@@ -14,7 +14,7 @@
 #include "device.h"
 
 #define BLUEDBM_NR_BLOCKS                                                      \
-	(4096) /**< number of blocks(segments) in the flash board */
+	(8192) /**< number of blocks(segments) in the flash board */
 
 /**
  * @brief structure for manage the dma

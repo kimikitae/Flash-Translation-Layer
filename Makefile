@@ -29,7 +29,7 @@ DOCKER_TAG_ROOT = ftl
 
 # Device Module Setting
 USE_ZONE_DEVICE = 0
-USE_BLUEDBM_DEVICE = 0
+USE_BLUEDBM_DEVICE = 1
 # Debug Setting
 USE_DEBUG = 0
 USE_LOG_SILENT = 0
@@ -192,8 +192,8 @@ $(INTEGRATION_TEST_TARGET): integration-test.c $(LIBRARY_TARGET)
 	$(CXX) $(MACROS) $(CXXFLAGS) -o $@ integration-test.o -L. -lftl -lpthread $(LIBS) $(INCLUDES)
 
 $(BENCHMARK_TARGET): benchmark.c $(LIBRARY_TARGET)
-	$(CXX) $(MACROS) $(CFLAGS) -c benchmark.c $(INCLUDES) $(LIBS)
-	$(CXX) $(MACROS) $(CFLAGS) -o $@ benchmark.o -L. -lftl -lpthread -liberty $(INCLUDES) $(LIBS)
+	$(CXX) $(MACROS) $(CFLAGS) -g -c benchmark.c $(INCLUDES) $(LIBS)
+	$(CXX) $(MACROS) $(CFLAGS) -g -o $@ benchmark.o -L. -lftl -lpthread -liberty $(INCLUDES) $(LIBS)
 
 $(LIBRARY_TARGET): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^

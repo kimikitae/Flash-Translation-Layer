@@ -223,11 +223,14 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 	request->data_len = page_size;
 	request->end_rq = page_ftl_write_end_rq;
 
+	/*
 	// check whether user write(benchmark.c) or gc write
 	if(user_flag){
 		user_flag = 0;
 		printf("PPN: %016x\t(segnum: %zu)\n", paddr.lpn, paddr.format.block);
 	}
+	*/
+
 	ret = dev->d_op->write(dev, request);
 	if (ret != (ssize_t)device_get_page_size(dev)) {
 		pr_err("device write failed (ppn: %u)\n", request->paddr.lpn);

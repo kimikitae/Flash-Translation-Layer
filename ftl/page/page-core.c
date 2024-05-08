@@ -350,12 +350,14 @@ ssize_t page_ftl_submit_request(struct page_ftl *pgftl,
 #endif
 		pthread_mutex_unlock(&pgftl->gc_mutex);
 		
+		/*
 		size_t sector, lpn;
 		sector = request->sector;
 		lpn = page_ftl_get_lpn(pgftl, sector);
 		user_flag = 1;
 		printf("W\tLPN: %016x \t\t", lpn);
-		
+		*/
+
 		ret = page_ftl_write(pgftl, request);
 #ifdef PAGE_FTL_USE_GLOBAL_RWLOCK
 		pthread_rwlock_unlock(&pgftl->rwlock);
