@@ -207,7 +207,9 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 	pthread_mutex_lock(&pgftl->mutex);
 	is_exist = pgftl->trans_map[lpn] != PADDR_EMPTY;
 	pthread_mutex_unlock(&pgftl->mutex);
-	if (is_exist) {
+	if (is_exist && !(offset == 0 || page_size == write_size)) {
+	//if (is_exist && write_size < page_size) {
+	//if (is_exist) {
 		ret = page_ftl_read_for_overwrite(pgftl, lpn, buffer);
 		if (ret < 0) {
 			pr_err("read failed (lpn:%zu)\n", lpn);
@@ -230,7 +232,7 @@ ssize_t page_ftl_write(struct page_ftl *pgftl, struct device_request *request)
 		printf("PPN: %016x\t(segnum: %zu)\n", paddr.lpn, paddr.format.block);
 	}
 	*/
-
+	//printf("[FTL-log] write\tpaddr : %llX\tdata_len : %zubytes \n", request->paddr, request->data_len);
 	ret = dev->d_op->write(dev, request);
 	if (ret != (ssize_t)device_get_page_size(dev)) {
 		pr_err("device write failed (ppn: %u)\n", request->paddr.lpn);

@@ -61,7 +61,8 @@ endif
 
 TEST_TARGET := lru-test.out \
               bits-test.out \
-              ramdisk-test.out
+              ramdisk-test.out \
+			  bluedbm-test.out
 
 DEVICE_LIBS =
 
@@ -135,7 +136,7 @@ INCLUDES := -I./include -I./unity/src $(GLIB_INCLUDES) $(DEVICE_INCLUDES)
 
 RAMDISK_SRCS = device/ramdisk/*.c
 ZONED_SRCS =
-BLUEDBM_SRCS =
+BLUEDBM_SRCS = 
 
 ifeq ($(USE_ZONE_DEVICE), 1)
 ZONED_SRCS += device/zone/*.c
@@ -214,6 +215,12 @@ ifeq ($(USE_ZONE_DEVICE), 1)
 zone-test.out: $(OBJS) ./test/zone-test.c
 	$(CXX) $(MACROS) $(CFLAGS) -DENABLE_LOG_SILENT $(INCLUDES) -o $@ --coverage $^ $(LIBS)
 endif
+
+ifeq ($(USE_BLUEDBM_DEVICE), 1)
+bluedbm-test.out : $(UNITY_ROOT)/src/unity.c $(DEVICE_SRCS) ./test/bluedbm-test.c
+	$(CXX) $(MACROS) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LIBS)
+endif
+
 
 unity.o: $(UNITY_ROOT)/src/unity.c
 	$(CXX) $(MACROS) $(CFLAGS) -DENABLE_LOG_SILENT $(INCLUDES) -c $^ $(LIBS)

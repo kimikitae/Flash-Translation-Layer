@@ -19,6 +19,8 @@
 #include "log.h"
 #include "bits.h"
 
+#include <time.h>
+
 gint *g_badseg_counter = NULL; /**< counter for bad segemnt detection */
 gint *g_erase_counter = NULL; /**< counter for # of erase in the segment*/
 
@@ -157,6 +159,8 @@ int bluedbm_open(struct device *dev, const char *name, int flags)
 
 	nr_segments = device_get_nr_segments(dev);
 
+	pr_info("bdbm device spec : info->nr_bus: %d \t info->nr_chips: %d \t block->nr_pages: %d \t page->size: %d \t package->nr_blocks: %d \t nr_segments: %d \n", info->nr_bus, info->nr_chips, block->nr_pages, page->size, package->nr_blocks, nr_segments);
+
 	bdbm = (struct bluedbm *)dev->d_private;
 	mio = memio_open();
 	if (mio == NULL) {
@@ -194,7 +198,9 @@ int bluedbm_open(struct device *dev, const char *name, int flags)
 	memset(g_badseg_counter, 0, nr_segments * sizeof(gint));
 
 	if (bdbm->o_flags & O_CREAT) {
+		//pr_err("bdm clear! stt\n");
 		bluedbm_clear(dev);
+		//pr_err("bdm clear! end\n");
 		sleep(1);
 		bluedbm_wait_erase_finish(dev, 0, nr_segments);
 	}
@@ -205,6 +211,8 @@ exception:
 	return ret;
 }
 
+long read_sum = 0, write_sum = 0;
+long read_cnt = 0, write_cnt = 0;
 /**
  * @brief end request for the read/write
  *
@@ -214,6 +222,8 @@ static void bluedbm_end_rw_request(async_bdbm_req *rw_req)
 {
 	bluedbm_dma_t *dma;
 	struct device_request *user_rq;
+	struct timespec end = {0, 0};
+	long time_ns;
 
 	if (rw_req == NULL) {
 		pr_warn("NULL rw_req detected\n");
@@ -231,9 +241,20 @@ static void bluedbm_end_rw_request(async_bdbm_req *rw_req)
 
 	switch (rw_req->type) {
 	case REQTYPE_IO_WRITE:
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		time_ns = (end.tv_sec - user_rq->begin.tv_sec) * 1000000000L + (end.tv_nsec - user_rq->begin.tv_nsec);
+		write_sum += time_ns;
+		write_cnt++;
+		//printf("time of a write from device : %ld ns \n", time_ns);
 		memio_free_dma(DMA_WRITE_BUF, dma->tag);
 		break;
 	case REQTYPE_IO_READ:
+		//printf("cnt : %d\n", read_cnt++);
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		time_ns = (end.tv_sec - user_rq->begin.tv_sec) * 1000000000L + (end.tv_nsec - user_rq->begin.tv_nsec);
+		read_sum += time_ns;
+		read_cnt++;
+		//printf("time of a read from device : %ld ns \n", time_ns);
 		memcpy(user_rq->data, dma->data, user_rq->data_len);
 		memio_free_dma(DMA_READ_BUF, dma->tag);
 		break;
@@ -329,8 +350,10 @@ ssize_t bluedbm_write(struct device *dev, struct device_request *request)
 	write_rq->private_data = (void *)dma;
 	write_rq->end_req = bluedbm_end_rw_request;
 
+	clock_gettime(CLOCK_MONOTONIC, &request->begin);
 	ret = memio_write(mio, lpn, page_size, (uint8_t *)dma->data, false,
 			  (void *)write_rq, dma->tag);
+
 	return ret;
 exception:
 	if (write_rq) {
@@ -417,6 +440,7 @@ ssize_t bluedbm_read(struct device *dev, struct device_request *request)
 	read_rq->type = REQTYPE_IO_READ;
 	read_rq->private_data = (void *)dma;
 	read_rq->end_req = bluedbm_end_rw_request;
+	clock_gettime(CLOCK_MONOTONIC, &request->begin);
 
 	ret = memio_read(mio, lpn, page_size, (uint8_t *)dma->data, false,
 			 (void *)read_rq, dma->tag);
@@ -483,6 +507,7 @@ int bluedbm_erase(struct device *dev, struct device_request *request)
 		request->end_rq(request);
 	}
 	erase_size = pages_per_segment * page_size;
+	mio->rr->req_type = REQTYPE_GC_ERASE;
 	memio_trim(mio, addr.lpn, erase_size, bluedbm_erase_end_request);
 	bluedbm_wait_erase_finish(dev, segnum, 1);
 	return ret;
@@ -524,6 +549,9 @@ int bluedbm_close(struct device *dev)
 		free(g_badseg_counter);
 		g_badseg_counter = NULL;
 	}
+
+	printf("Average of all write(device code layer) times : %ld ns \n", write_sum/write_cnt);
+	printf("Average of all read(device code layer) times : %ld ns \n", read_sum/read_cnt);
 
 	return 0;
 }

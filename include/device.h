@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "log.h" /**< to use the TOSTRING */
 
@@ -119,6 +120,7 @@ struct device_request {
 	device_end_req_fn end_rq; /**< end request function */
 
 	gint is_finish;
+	struct timespec begin;
 
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;

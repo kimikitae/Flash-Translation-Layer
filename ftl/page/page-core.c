@@ -54,18 +54,25 @@ static void *page_ftl_gc_thread(void *data)
 	size_t bps = device_get_blocks_per_segment(pgftl->dev);
 	size_t pps = device_get_pages_per_segment(pgftl->dev);
 	printf("total_segments:%zu blocks_per_segment:%zu pages_per_segment:%zu \n", total_segments, bps, pps);
-	total_pages = device_get_total_pages(pgftl->dev);
+	//total_pages = device_get_total_pages(pgftl->dev);
 	ret = 0;
 	while (1) {
-		size_t free_pages;
+		size_t free_segments;
+		//size_t free_pages;
 		g_assert(nanosleep(&req, NULL) == 0);
 		if (g_atomic_int_get(&is_gc_thread_exit) == 1) {
 			break;
 		}
-		free_pages = page_ftl_get_free_pages(pgftl);
+		free_segments = page_ftl_get_free_segments(pgftl);
+		//free_pages = page_ftl_get_free_pages(pgftl);
+		/*
 		if((double)free_pages >
 				(double)total_pages * PAGE_FTL_GC_THRESHOLD){
 			continue;
+		}*/
+		if((double)free_segments >
+			(double)total_segments * PAGE_FTL_GC_THRESHOLD) {
+				continue;
 		}
 
 		ret = page_ftl_gc_from_list(pgftl, &request, (double)1 / (double)total_segments);

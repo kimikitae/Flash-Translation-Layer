@@ -12,7 +12,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-
 /**
  * @brief read's end request function
  *
@@ -117,6 +116,7 @@ ssize_t page_ftl_read(struct page_ftl *pgftl, struct device_request *request)
 	read_rq->rq_private = request;
 	read_rq->end_rq = page_ftl_read_end_rq;
 
+	//printf("[FTL-log] read\tpaddr : %llX\tdata_len : %zubytes \n", read_rq->paddr, read_rq->data_len);
 	data_len = request->data_len;
 	ret = dev->d_op->read(dev, read_rq);
 	if (ret < 0) {
